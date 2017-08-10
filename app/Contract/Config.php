@@ -1,7 +1,7 @@
 <?php
 namespace App\Contract;
 
-use App\Trait\Contract;
+use App\Definition\Contract;
 use App\Service\Config AS ConfigService;
 
 class Config
