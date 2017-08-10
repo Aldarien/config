@@ -1,0 +1,21 @@
+<?php
+namespace App\Contract;
+
+use App\Trait\Contract;
+use App\Service\Config AS ConfigService;
+
+class Config
+{
+	use Contract;
+
+	protected static function newInstance()
+	{
+		return new ConfigService();
+	}
+	public static function get($name)
+	{
+		$instance = self::getInstance();
+		return $instance->get($name);
+	}
+}
+?>

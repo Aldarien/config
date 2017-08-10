@@ -1,0 +1,52 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "hash": "d9a0cc1664c1e1c640203115be209f6f",
+    "content-hash": "ccd1703415dd11ecf6945b90b224d31c",
+    "packages": [
+        {
+            "name": "aldarien/contract",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Aldarien/contract.git",
+                "reference": "3c7ae67f6277a3899d122acff4adc4c1d05b66ae"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Aldarien/contract/zipball/3c7ae67f6277a3899d122acff4adc4c1d05b66ae",
+                "reference": "3c7ae67f6277a3899d122acff4adc4c1d05b66ae",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "App\\": "app"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aldarien",
+                    "email": "aldarien85@gmail.com"
+                }
+            ],
+            "description": "Contract trait for my apps",
+            "time": "2017-08-10 22:11:11"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}
