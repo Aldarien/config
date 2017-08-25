@@ -65,5 +65,9 @@ class Config
 		}
 		return null;
 	}
+	public function set($name, $value)
+	{
+		$this->add($name, $value);
+	}
 }
 ?>

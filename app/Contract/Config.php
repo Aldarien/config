@@ -17,5 +17,10 @@ class Config
 		$instance = self::getInstance();
 		return $instance->get($name);
 	}
+	public static function set($name, $value)
+	{
+		$instance = self::getInstance();
+		return $instance->set($name, $value);
+	}
 }
 ?>

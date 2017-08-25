@@ -15,6 +15,12 @@ class ConfigTest extends TestCase
 		
 		$this->assertEquals($name, config('app.name'));
 	}
+	public function testSetName()
+	{
+		$new_name = 'Config_Test';
+		config('app.name', $new_name);
+		$this->assertEquals($new_name, config('app.name'));
+	}
 	public function tearDown()
 	{
 		unlink(dirname(__DIR__) . '/config/app.php');
