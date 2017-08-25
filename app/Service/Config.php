@@ -34,7 +34,7 @@ class Config
 		foreach ($array as $k1 => $l1) {
 			$key = $level . '.' . $k1;
 			if (is_array($l1)) {
-				$output = array_merge($this->translateArray($l1, $key));
+				$output = array_merge($output, $this->translateArray($l1, $key));
 			} else {
 				$output[$key] = $l1;
 			}
