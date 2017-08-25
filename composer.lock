@@ -9,16 +9,16 @@
     "packages": [
         {
             "name": "aldarien/contract",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Aldarien/contract.git",
-                "reference": "3c7ae67f6277a3899d122acff4adc4c1d05b66ae"
+                "reference": "2651fa8f7836582a393b55b6621e3a0504bd50bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Aldarien/contract/zipball/3c7ae67f6277a3899d122acff4adc4c1d05b66ae",
-                "reference": "3c7ae67f6277a3899d122acff4adc4c1d05b66ae",
+                "url": "https://api.github.com/repos/Aldarien/contract/zipball/2651fa8f7836582a393b55b6621e3a0504bd50bb",
+                "reference": "2651fa8f7836582a393b55b6621e3a0504bd50bb",
                 "shasum": ""
             },
             "type": "library",
@@ -38,7 +38,7 @@
                 }
             ],
             "description": "Contract trait for my apps",
-            "time": "2017-08-10 22:11:11"
+            "time": "2017-08-10 23:56:31"
         }
     ],
     "packages-dev": [
