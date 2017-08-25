@@ -1,2 +1,2 @@
 language: php
-install: php vendor/vendors.php
+install: composer update
