@@ -9,7 +9,7 @@ class Config
 	public function __construct($dir = null)
 	{
 		if ($dir == null) {
-			$dir = dirname(__DIR__) . '/../config';
+			$dir = realpath(root() . '/config');
 		}
 		$this->dir = $dir;
 		$this->load();

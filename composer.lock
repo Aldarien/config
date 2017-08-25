@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "5ba015a39b41d3fdc20e0db5390e4fd2",
-    "content-hash": "913d78632f4f70abfca57c73aec8431f",
+    "hash": "e9e9f974ec112fafdb0996b38f9992d6",
+    "content-hash": "71450f5b67d8faa224981ab73f38df9a",
     "packages": [
         {
             "name": "aldarien/contract",
@@ -39,6 +39,45 @@
             ],
             "description": "Contract trait for my apps",
             "time": "2017-08-10 23:56:31"
+        },
+        {
+            "name": "aldarien/root",
+            "version": "1.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Aldarien/root.git",
+                "reference": "56109969b3d1d0cc929f2241353811b0e1bd37e5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Aldarien/root/zipball/56109969b3d1d0cc929f2241353811b0e1bd37e5",
+                "reference": "56109969b3d1d0cc929f2241353811b0e1bd37e5",
+                "shasum": ""
+            },
+            "require-dev": {
+                "kint-php/kint": "~2",
+                "phpunit/phpunit": "~6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Proyect\\Root\\": "src"
+                },
+                "files": [
+                    "app/Helper/functions.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aldarien"
+                }
+            ],
+            "description": "Find the root path for your proyect",
+            "time": "2017-08-25 22:17:03"
         }
     ],
     "packages-dev": [
