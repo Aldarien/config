@@ -21,8 +21,9 @@ class Config
 			$info = pathinfo($file);
 			$name = $info['filename'];
 
-			$data = include_once $file;
-			$data = $this->translateArray($data, $name);
+			$d = include_once $file;
+			$data[$name] = $d;
+			$data = array_merge($data, $this->translateArray($d, $name));
 			foreach ($data as $key => $value) {
 				$this->add($key, $value);
 			}
@@ -34,6 +35,7 @@ class Config
 		foreach ($array as $k1 => $l1) {
 			$key = $level . '.' . $k1;
 			if (is_array($l1)) {
+				$output[$key] = $l1;
 				$output = array_merge($output, $this->translateArray($l1, $key));
 			} else {
 				$output[$key] = $l1;
@@ -47,6 +49,12 @@ class Config
 	}
 	protected function replace($value)
 	{
+		if (is_array($value)) {
+			foreach ($value as $k => $v) {
+				$value[$k] = $this->replace($v);
+			}
+			return $value;
+		}
 		if (strpos($value, '{') !== false) {
 			while(strpos($value, '{') !== false) {
 				$ini = strpos($value, '{') + 1;
