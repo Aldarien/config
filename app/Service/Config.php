@@ -1,6 +1,8 @@
 <?php
 namespace App\Service;
 
+use App\Contract\YamlWrapper;
+
 class Config
 {
 	protected $dir;
@@ -16,17 +18,32 @@ class Config
 	}
 	protected function load()
 	{
-		$files = glob($this->dir . '/*.php');
+		$files = glob($this->dir . '/*.{php,json,yml}', GLOB_BRACE);
 		foreach ($files as $file) {
 			$info = pathinfo($file);
 			$name = $info['filename'];
 
-			$d = include_once $file;
+			$d = $this->getData($file);
 			$data[$name] = $d;
 			$data = array_merge($data, $this->translateArray($d, $name));
 			foreach ($data as $key => $value) {
 				$this->add($key, $value);
 			}
+		}
+	}
+	protected function getData($filename)
+	{
+		$info = pathinfo($filename);
+		
+		switch ($info['extension']) {
+			case 'php':
+				return include_once $filename;
+			case 'json':
+				return json_decode(file_get_contents($filename), true);
+			case 'yml':
+				return YamlWrapper::load($filename);
+			default:
+				throw new \DomainException('Invalid file extension for ' . $filename);
 		}
 	}
 	protected function translateArray($array, $level)
