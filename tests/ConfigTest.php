@@ -12,6 +12,8 @@ class ConfigTest extends TestCase
 		$data = ['name' => 'Config', 'test_array' => ['data1' => 1, 'data2' => 2]];
 		file_put_contents(dirname(__DIR__) . '/config/json.json', json_encode($data));
 		file_put_contents(dirname(__DIR__) . '/config/yaml.yml', YamlWrapper::dump($data));
+		$data = ['last_name' => 'Config'];
+		file_put_contents(dirname(__DIR__) . '/config/yaml.json', json_encode($data));
 	}
 	public function testGetNamePhp()
 	{
@@ -61,11 +63,22 @@ class ConfigTest extends TestCase
 	{
 		$this->assertArrayHasKey('data1', config('yaml.test_array'));
 	}
+	public function testSameSectionName()
+	{
+		$this->assertEquals('Config', config('yaml.last_name'));
+	}
+	public function testAddFile()
+	{
+		$filename = dirname(__DIR__) . '/composer.json';
+		App\Contract\Config::addFile($filename);
+		$this->assertEquals('aldarien/config', config('composer.name'));
+	}
 	public function tearDown()
 	{
 		unlink(dirname(__DIR__) . '/config/app.php');
 		unlink(dirname(__DIR__) . '/config/json.json');
 		unlink(dirname(__DIR__) . '/config/yaml.yml');
+		unlink(dirname(__DIR__) . '/config/yaml.json');
 		rmdir(dirname(__DIR__) . '/config');
 	}
 }

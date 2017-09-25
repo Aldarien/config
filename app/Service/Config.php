@@ -31,6 +31,21 @@ class Config
 			}
 		}
 	}
+	public function loadFile(string $filename)
+	{
+		if (!file_exists(realpath($filename))) {
+			return false;
+		}
+		$info = pathinfo($filename);
+		$name = $info['filename'];
+		$d = $this->getData($filename);
+		$data[$name] = $d;
+		$data = array_merge($data, $this->translateArray($d, $name));
+		foreach ($data as $key => $value) {
+			$this->add($key, $value);
+		}
+		return true;
+	}
 	protected function getData($filename)
 	{
 		$info = pathinfo($filename);
@@ -83,8 +98,11 @@ class Config
 		return $value;
 	}
 
-	public function get($name)
+	public function get($name = null)
 	{
+		if ($name == null) {
+			return $this->data;
+		}
 		if (isset($this->data[$name])) {
 			return $this->data[$name];
 		}

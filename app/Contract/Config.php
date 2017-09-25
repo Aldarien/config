@@ -12,7 +12,7 @@ class Config
 	{
 		return new ConfigService();
 	}
-	public static function get($name)
+	public static function get($name = null)
 	{
 		$instance = self::getInstance();
 		return $instance->get($name);
@@ -21,6 +21,11 @@ class Config
 	{
 		$instance = self::getInstance();
 		return $instance->set($name, $value);
+	}
+	public static function addFile($filename)
+	{
+		$instance = self::getInstance();
+		return $instance->loadFile($filename);
 	}
 }
 ?>

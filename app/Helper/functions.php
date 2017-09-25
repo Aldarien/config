@@ -1,5 +1,5 @@
 <?php
-function config($name, $value = null) {
+function config($name = null, $value = null) {
 	if ($value == null) {
 		return App\Contract\Config::get($name);
 	} else {
