@@ -67,6 +67,11 @@ class ConfigTest extends TestCase
 	{
 		$this->assertEquals('Config', config('yaml.last_name'));
 	}
+	public function testDuplicateValue()
+	{
+		config('json.name', 'Config2');
+		$this->assertEquals('Config2', config('json.name'));
+	}
 	public function testAddFile()
 	{
 		$filename = dirname(__DIR__) . '/composer.json';

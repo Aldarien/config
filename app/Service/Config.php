@@ -77,7 +77,19 @@ class Config
 	}
 	protected function add($field, $value)
 	{
-		$this->data[$field] = $this->replace($value);
+		if (isset($this->data[$field])) {
+			if (is_array($this->data[$field])) {
+				if (is_array($value)) {
+					$this->data[$field] = array_merge($this->data[$field], $this->replace($value));
+				} else {
+					$this->data[$field] []= $this->replace($value);
+				}
+			} else {
+				$this->data[$field] = $this->replace($value);
+			}
+		} else {
+			$this->data[$field] = $this->replace($value);
+		}
 	}
 	protected function replace($value)
 	{
