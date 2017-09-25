@@ -78,18 +78,36 @@ class Config
 	protected function add($field, $value)
 	{
 		if (isset($this->data[$field])) {
+			if ($this->data[$field] == $value) {
+				return;
+			}
 			if (is_array($this->data[$field])) {
-				if (is_array($value)) {
-					$this->data[$field] = array_merge($this->data[$field], $this->replace($value));
-				} else {
-					$this->data[$field] []= $this->replace($value);
-				}
+				$this->data[$field] = $this->merge($this->data[$field], $this->replace($value));
 			} else {
 				$this->data[$field] = $this->replace($value);
 			}
 		} else {
 			$this->data[$field] = $this->replace($value);
 		}
+	}
+	protected function merge($arr1, $arr2)
+	{
+		$output = $arr1;
+		foreach ($arr2 as $k => $value) {
+			if (isset($arr1[$k])) {
+				if ($arr1[$k] == $value) {
+					continue;
+				}
+				if (is_array($arr1[$k])) {
+					$output[$k] = $this->merge($arr1[$k], $value);
+				} else {
+					$output[$k] = array_merge([$arr1[$k]], $value);
+				}
+			} else {
+				$output[$k] = $value;
+			}
+		}
+		return $output;
 	}
 	protected function replace($value)
 	{
