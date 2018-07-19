@@ -20,7 +20,7 @@ class Config
 	public static function set($name, $value)
 	{
 		$instance = self::getInstance();
-		return $instance->set($name, $value);
+		return $instance->add($name, $value);
 	}
 	public static function addFile($filename)
 	{
