@@ -11,7 +11,7 @@ class Config
 	public function __construct($dir = null)
 	{
 		if ($dir == null) {
-			$dir = realpath(dirname(dirname(__DIR__)) . '/config') . DIRECTORY_SEPARATOR;
+			$dir = realpath(root() . '/config') . DIRECTORY_SEPARATOR;
 		}
 		$this->dir = $dir;
 		$this->load();
@@ -76,7 +76,7 @@ class Config
     if (is_array($value)) {
       foreach ($value as $key => $val) {
         $n = $name . '.' . $key;
-        $this->add($n, $val);
+        $this->set($n, $val);
       }
     }
   }
@@ -87,8 +87,11 @@ class Config
 	}
 	protected function checkValues($array = null)
   {
+		if ($this->data == null) {
+			return;
+		}
     if ($array == null) {
-      foreach ($this->data as $key => $config) {
+			foreach ($this->data as $key => $config) {
         $this->data[$key] = $this->checkValues($config);
       }
       return;
