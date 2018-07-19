@@ -11,18 +11,17 @@ class Config
 	public function __construct($dir = null)
 	{
 		if ($dir == null) {
-			$dir = realpath(root() . '/config');
+			$dir = realpath(dirname(dirname(__DIR__)) . '/config') . DIRECTORY_SEPARATOR;
 		}
 		$this->dir = $dir;
 		$this->load();
 	}
 	protected function load()
 	{
-		$files = glob($this->dir . '/*.{php,json,yml}', GLOB_BRACE);
+		//$files = glob($this->dir . '/*.{php,json,yml}', GLOB_BRACE);
+		$files = $this->getFiles($this->dir);
 		foreach ($files as $file) {
-			$info = pathinfo($file);
-			$name = $info['filename'];
-
+			$name = $file->name;
 			$d = $this->getData($file);
 			$data[$name] = $d;
 			$data = array_merge($data, $this->translateArray($d, $name));
@@ -31,14 +30,34 @@ class Config
 			}
 		}
 	}
+	protected function getFiles($location)
+  {
+    $files = [];
+    $d = new \DirectoryIterator($location) or die("getFileList: Failed opening directory $location for reading");
+    foreach ($d as $fileinfo) {
+      if ($fileinfo->isDot() or $fileinfo->isDir()) {
+        continue;
+      }
+			if (!preg_match("/\.(php|json|yml)*$/i", $fileinfo->getFilename(), $matches)) {
+			  continue;
+			}
+			$files []= (object) [
+        'filename' => "{$location}{$fileinfo}",
+        'name' => strtolower($fileinfo->getBasename('.' . $fileinfo->getExtension())),
+        'type' => strtolower($fileinfo->getExtension())
+      ];
+    }
+    return $files;
+  }
 	public function loadFile(string $filename)
 	{
 		if (!file_exists(realpath($filename))) {
 			return false;
 		}
 		$info = pathinfo($filename);
-		$name = $info['filename'];
-		$d = $this->getData($filename);
+		$file = (object) ['name' => $info['filename'], 'filename' => $filename, 'type' => strtolower($info['extension'])];
+		$name = $file->name;
+		$d = $this->getData($file);
 		$data[$name] = $d;
 		$data = array_merge($data, $this->translateArray($d, $name));
 		foreach ($data as $key => $value) {
@@ -46,19 +65,17 @@ class Config
 		}
 		return true;
 	}
-	protected function getData($filename)
+	protected function getData($file)
 	{
-		$info = pathinfo($filename);
-		
-		switch ($info['extension']) {
+		switch ($file->type) {
 			case 'php':
-				return include_once $filename;
+				return include $file->filename;
 			case 'json':
-				return json_decode(file_get_contents($filename), true);
+				return json_decode(file_get_contents($file->filename), true);
 			case 'yml':
-				return YamlWrapper::load($filename);
+				return YamlWrapper::load($file->filename);
 			default:
-				throw new \DomainException('Invalid file extension for ' . $filename);
+				throw new \DomainException('Invalid file extension for ' . $file->filename);
 		}
 	}
 	protected function translateArray($array, $level)
@@ -142,5 +159,18 @@ class Config
 	{
 		$this->add($name, $value);
 	}
+	public function remove($name)
+  {
+    $keys = explode('.', $name);
+    for ($i = 0; $i < count($keys); $i ++) {
+      $n = implode('.', array_slice($keys, 0, $i + 1));
+      $str = "unset(\$this->data['{$n}']";
+      for ($j = $i + 1; $j < count($keys); $j ++) {
+        $str .= "['{$keys[$j]}']";
+      }
+      $str .= ');';
+      eval($str);
+    }
+  }
 }
 ?>
