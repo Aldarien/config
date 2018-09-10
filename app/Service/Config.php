@@ -18,37 +18,33 @@ class Config
 	}
 	protected function load()
 	{
-		//$files = glob($this->dir . '/*.{php,json,yml}', GLOB_BRACE);
 		$files = $this->getFiles($this->dir);
 		foreach ($files as $file) {
 			$name = $file->name;
-			$d = $this->getData($file);
-			$data[$name] = $d;
-			$data = array_merge($data, $this->translateArray($d, $name));
-			foreach ($data as $key => $value) {
-				$this->add($key, $value);
-			}
+			$data = $this->getData($file);
+			$this->set($name, $data);
 		}
+		$this->checkValues();
 	}
 	protected function getFiles($location)
-  {
-    $files = [];
-    $d = new \DirectoryIterator($location) or die("getFileList: Failed opening directory $location for reading");
-    foreach ($d as $fileinfo) {
-      if ($fileinfo->isDot() or $fileinfo->isDir()) {
-        continue;
-      }
+	{
+		$files = [];
+		$d = new \DirectoryIterator($location) or die("getFileList: Failed opening directory $location for reading");
+		foreach ($d as $fileinfo) {
+			if ($fileinfo->isDot() or $fileinfo->isDir()) {
+				continue;
+			}
 			if (!preg_match("/\.(php|json|yml)*$/i", $fileinfo->getFilename(), $matches)) {
-			  continue;
+				continue;
 			}
 			$files []= (object) [
-        'filename' => "{$location}{$fileinfo}",
-        'name' => strtolower($fileinfo->getBasename('.' . $fileinfo->getExtension())),
-        'type' => strtolower($fileinfo->getExtension())
-      ];
-    }
-    return $files;
-  }
+				'filename' => "{$location}{$fileinfo}",
+				'name' => strtolower($fileinfo->getBasename('.' . $fileinfo->getExtension())),
+				'type' => strtolower($fileinfo->getExtension())
+			];
+		}
+		return $files;
+	}
 	public function loadFile(string $filename)
 	{
 		if (!file_exists(realpath($filename))) {
@@ -57,12 +53,8 @@ class Config
 		$info = pathinfo($filename);
 		$file = (object) ['name' => $info['filename'], 'filename' => $filename, 'type' => strtolower($info['extension'])];
 		$name = $file->name;
-		$d = $this->getData($file);
-		$data[$name] = $d;
-		$data = array_merge($data, $this->translateArray($d, $name));
-		foreach ($data as $key => $value) {
-			$this->add($key, $value);
-		}
+		$data = $this->getData($file);
+		$this->add($name, $data);
 		return true;
 	}
 	protected function getData($file)
@@ -78,53 +70,36 @@ class Config
 				throw new \DomainException('Invalid file extension for ' . $file->filename);
 		}
 	}
-	protected function translateArray($array, $level)
+	protected function set($name, $value)
 	{
-		$output = [];
-		foreach ($array as $k1 => $l1) {
-			$key = $level . '.' . $k1;
-			if (is_array($l1)) {
-				$output[$key] = $l1;
-				$output = array_merge($output, $this->translateArray($l1, $key));
-			} else {
-				$output[$key] = $l1;
+		$this->data[$name] = $value;
+		if (is_array($value)) {
+			foreach ($value as $key => $val) {
+				$n = $name . '.' . $key;
+				$this->add($n, $val);
 			}
-		}
-		return $output;
-	}
-	protected function add($field, $value)
-	{
-		if (isset($this->data[$field])) {
-			if ($this->data[$field] == $value) {
-				return;
-			}
-			if (is_array($this->data[$field])) {
-				$this->data[$field] = $this->merge($this->data[$field], $this->replace($value));
-			} else {
-				$this->data[$field] = $this->replace($value);
-			}
-		} else {
-			$this->data[$field] = $this->replace($value);
 		}
 	}
-	protected function merge($arr1, $arr2)
+	public function add($field, $value)
 	{
-		$output = $arr1;
-		foreach ($arr2 as $k => $value) {
-			if (isset($arr1[$k])) {
-				if ($arr1[$k] == $value) {
-					continue;
-				}
-				if (is_array($arr1[$k])) {
-					$output[$k] = $this->merge($arr1[$k], $value);
-				} else {
-					$output[$k] = array_merge([$arr1[$k]], $value);
-				}
-			} else {
-				$output[$k] = $value;
+		$this->set($field, $value);
+		$this->checkValues();
+	}
+	protected function checkValues($array = null)
+	{
+		if ($array == null) {
+			foreach ($this->data as $key => $config) {
+				$this->data[$key] = $this->checkValues($config);
 			}
+			return;
 		}
-		return $output;
+		if (is_array($array)) {
+			foreach ($array as $key => $val) {
+				$array[$key] = $this->checkValues($val);
+			}
+			return $array;
+		}
+		return $this->replace($array);
 	}
 	protected function replace($value)
 	{
@@ -139,7 +114,11 @@ class Config
 				$ini = strpos($value, '{') + 1;
 				$end = strpos($value, '}', $ini);
 				$rep = substr($value, $ini, $end - $ini);
-				$value = str_replace('{' . $rep . '}', $this->get($rep), $value);
+				$get = $this->get($rep);
+				if (strpos($get, '{') !== false) {
+					$get = $this->replace($get);
+				}
+				$value = str_replace('{' . $rep . '}', $get, $value);
 			}
 		}
 		return $value;
@@ -155,22 +134,18 @@ class Config
 		}
 		return null;
 	}
-	public function set($name, $value)
-	{
-		$this->add($name, $value);
-	}
 	public function remove($name)
-  {
-    $keys = explode('.', $name);
-    for ($i = 0; $i < count($keys); $i ++) {
-      $n = implode('.', array_slice($keys, 0, $i + 1));
-      $str = "unset(\$this->data['{$n}']";
-      for ($j = $i + 1; $j < count($keys); $j ++) {
-        $str .= "['{$keys[$j]}']";
-      }
-      $str .= ');';
-      eval($str);
-    }
-  }
+	{
+		$keys = explode('.', $name);
+		for ($i = 0; $i < count($keys); $i ++) {
+			$n = implode('.', array_slice($keys, 0, $i + 1));
+			$str = "unset(\$this->data['{$n}']";
+			for ($j = $i + 1; $j < count($keys); $j ++) {
+				$str .= "['{$keys[$j]}']";
+			}
+			$str .= ');';
+			eval($str);
+		}
+	}
 }
 ?>
