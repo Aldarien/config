@@ -10,9 +10,9 @@
         }
     ],
     "require": {
-        "aldarien/contract": "~1",
-        "aldarien/root": "^1.0",
-        "symfony/yaml": "^3"
+        "aldarien/contract": "*",
+        "aldarien/root": "*",
+        "symfony/yaml": "*"
     },
     "autoload": {
         "psr-4": {
