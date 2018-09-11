@@ -11,7 +11,7 @@ class Config
 	public function __construct($dir = null)
 	{
 		if ($dir == null) {
-			$dir = realpath(dirname(dirname(__DIR__)) . '/config') . DIRECTORY_SEPARATOR;
+			$dir = realpath(root() . '/config') . DIRECTORY_SEPARATOR;
 		}
 		$this->dir = $dir;
 		$this->load();
