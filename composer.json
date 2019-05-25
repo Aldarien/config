@@ -1,28 +1,24 @@
 {
-    "name": "aldarien/config",
-    "description": "Config module for my apps",
-    "type": "library",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Aldarien",
-            "email": "aldarien85@gmail.com"
-        }
-    ],
-    "require": {
-        "aldarien/contract": "~1",
-        "aldarien/root": "^1.0",
-        "symfony/yaml": "^4"
-    },
-    "autoload": {
-        "psr-4": {
-            "App\\": "app"
-        },
-        "files": [
-            "app/Helper/functions.php"
-        ]
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^6.3"
+  "name": "aldarien/config",
+  "description": "Config module for my apps",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Aldarien",
+      "email": "aldarien85@gmail.com"
     }
+  ],
+  "require": {
+    "mustangostang/spyc": "^0.6.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app",
+      "Aldarien\\FileLoaders\\": "src"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6"
+  }
 }

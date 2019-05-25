@@ -1,151 +1,105 @@
 <?php
 namespace App\Service;
 
-use App\Contract\YamlWrapper;
+//use Config\Config as CModel;
 
-class Config
-{
-	protected $dir;
-	protected $data;
+class Config {
+  protected $data;
+  protected $folders;
 
-	public function __construct($dir = null)
-	{
-		if ($dir == null) {
-			$dir = realpath(dirname(dirname(__DIR__)) . '/config') . DIRECTORY_SEPARATOR;
-		}
-		$this->dir = $dir;
-		$this->load();
-	}
-	protected function load()
-	{
-		$files = $this->getFiles($this->dir);
-		foreach ($files as $file) {
-			$name = $file->name;
-			$data = $this->getData($file);
-			$this->set($name, $data);
-		}
-		$this->checkValues();
-	}
-	protected function getFiles($location)
-	{
-		$files = [];
-		$d = new \DirectoryIterator($location) or die("getFileList: Failed opening directory $location for reading");
-		foreach ($d as $fileinfo) {
-			if ($fileinfo->isDot() or $fileinfo->isDir()) {
-				continue;
-			}
-			if (!preg_match("/\.(php|json|yml)*$/i", $fileinfo->getFilename(), $matches)) {
-				continue;
-			}
-			$files []= (object) [
-				'filename' => "{$location}{$fileinfo}",
-				'name' => strtolower($fileinfo->getBasename('.' . $fileinfo->getExtension())),
-				'type' => strtolower($fileinfo->getExtension())
-			];
-		}
-		return $files;
-	}
-	public function loadFile(string $filename)
-	{
-		if (!file_exists(realpath($filename))) {
-			return false;
-		}
-		$info = pathinfo($filename);
-		$file = (object) ['name' => $info['filename'], 'filename' => $filename, 'type' => strtolower($info['extension'])];
-		$name = $file->name;
-		$data = $this->getData($file);
-		$this->add($name, $data);
-		return true;
-	}
-	protected function getData($file)
-	{
-		switch ($file->type) {
-			case 'php':
-				return include $file->filename;
-			case 'json':
-				return json_decode(file_get_contents($file->filename), true);
-			case 'yml':
-				return YamlWrapper::load($file->filename);
-			default:
-				throw new \DomainException('Invalid file extension for ' . $file->filename);
-		}
-	}
-	protected function set($name, $value)
-	{
-		$this->data[$name] = $value;
-		if (is_array($value)) {
-			foreach ($value as $key => $val) {
-				$n = $name . '.' . $key;
-				$this->add($n, $val);
-			}
-		}
-	}
-	public function add($field, $value)
-	{
-		$this->set($field, $value);
-		$this->checkValues();
-	}
-	protected function checkValues($array = null)
-	{
-		if ($array == null) {
-			foreach ($this->data as $key => $config) {
-				$this->data[$key] = $this->checkValues($config);
-			}
-			return;
-		}
-		if (is_array($array)) {
-			foreach ($array as $key => $val) {
-				$array[$key] = $this->checkValues($val);
-			}
-			return $array;
-		}
-		return $this->replace($array);
-	}
-	protected function replace($value)
-	{
-		if (is_array($value)) {
-			foreach ($value as $k => $v) {
-				$value[$k] = $this->replace($v);
-			}
-			return $value;
-		}
-		if (strpos($value, '{') !== false) {
-			while(strpos($value, '{') !== false) {
-				$ini = strpos($value, '{') + 1;
-				$end = strpos($value, '}', $ini);
-				$rep = substr($value, $ini, $end - $ini);
-				$get = $this->get($rep);
-				if (strpos($get, '{') !== false) {
-					$get = $this->replace($get);
-				}
-				$value = str_replace('{' . $rep . '}', $get, $value);
-			}
-		}
-		return $value;
-	}
+  public function __construct($config_folder = null) {
+    if ($config_folder == null) {
+      $config_folder = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'config';
+    }
+    $this->data = (object) [];
+    $this->addFolder($config_folder);
+  }
+  public function addFolder(string $folder) {
+    if (!file_exists($folder)) {
+      throw new \Exception($folder . ' folder does not exist.');
+    }
+    $this->folders []= $folder;
+    $this->load($folder);
+    return $this;
+  }
 
-	public function get($name = null)
-	{
-		if ($name == null) {
-			return $this->data;
-		}
-		if (isset($this->data[$name])) {
-			return $this->data[$name];
-		}
-		return null;
-	}
-	public function remove($name)
-	{
-		$keys = explode('.', $name);
-		for ($i = 0; $i < count($keys); $i ++) {
-			$n = implode('.', array_slice($keys, 0, $i + 1));
-			$str = "unset(\$this->data['{$n}']";
-			for ($j = $i + 1; $j < count($keys); $j ++) {
-				$str .= "['{$keys[$j]}']";
-			}
-			$str .= ');';
-			eval($str);
-		}
-	}
+  protected function load($folder) {
+    $files = new \DirectoryIterator($folder);
+    foreach ($files as $file) {
+      if ($file->isDir()) {
+        continue;
+      }
+      $loader = implode("\\", ["Aldarien", "FileLoaders", str_replace('YML', 'YAML', strtoupper($file->getExtension()) . 'Loader')]);
+      if (!class_exists($loader)) {
+        continue;
+      }
+      $loader = new $loader($folder . DIRECTORY_SEPARATOR . $file->getFilename());
+      $this->data->{$loader->getName()} = $loader->load();
+    }
+  }
+  /*
+  Database implementation
+  public function dbload($container) {
+    $migrations = (new Migrator($container))->load($this->get('locations.configs.migrations'))->check()->migrate();
+    $configs = $container->model->find(CModel::class)->many();
+    if (!$configs) {
+      return $this;
+    }
+    $configuration = [];
+    foreach ($configs as $config) {
+      $name = $config->denomination;
+      $configuration[$name] = $config->value;
+    }
+    $this->data->configuration = (object) $configuration;
+  }*/
+  public function get($name, $current = null, $full = '') {
+    if ($current == null) {
+      $current = $this->data;
+      $full = $name;
+    }
+    if (is_array($current)) {
+      $current = (object) $current;
+    }
+    $name = explode('.', $name);
+    if (count($name) > 1) {
+      $f = array_shift($name);
+      if (!isset($current->$f)) {
+        throw new \InvalidArgumentException($f . ' not found.');
+      }
+      return $this->get(implode('.', $name), $current->$f, $full);
+    }
+    if (!isset($current->{$name[0]})) {
+      return null;
+    }
+    $output = $current->{$name[0]};
+    $clean = $this->clean($output);
+    if ($clean != $output) {
+      $this->set($full, $clean);
+    }
+    return $clean;
+  }
+  public function set($name, $value) {
+    $name = "->" . implode("->", explode('.', $name));
+    $str = "\$this->data{$name} = \$value;";
+    eval($str);
+  }
+  protected function clean($value) {
+    if (!is_string($value)) {
+      return $value;
+    }
+    if (strpos($value, '{') !== false) {
+      $output = [];
+      $str = "/\{(.*)\}/";
+      preg_match_all($str, $value, $output, \PREG_SET_ORDER);
+      foreach ($output as $d) {
+        $value = str_replace($d[0], $this->get($d[1]), $value);
+      }
+    }
+    if (strpos($value, '(') !== false) {
+      $str = "\$output = " . $value . ';';
+      eval($str);
+      $value = $output;
+    }
+    return $value;
+  }
 }
-?>
