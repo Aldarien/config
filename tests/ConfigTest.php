@@ -12,15 +12,16 @@ class ConfigTest extends TestCase {
     }
 
     $filename = implode(DIRECTORY_SEPARATOR, [$folder, 'app.php']);
-    $data = "<?php return ['name' => 'Config', 'test_array' => ['data1' => 1, 'data2' => 2]]; ?>";
+    $data = "<?php return ['name' => 'App', 'test_array' => ['data1' => 1, 'data2' => 2]]; ?>";
     $this->createFile($filename, $data);
 
     $filename = implode(DIRECTORY_SEPARATOR, [$folder, 'json.json']);
-    $arr = ['name' => 'Config', 'test_array' => ['data1' => 1, 'data2' => 2]];
+    $arr = ['name' => 'JSON', 'test_array' => ['data1' => 1, 'data2' => 2]];
     $data = json_encode($arr);
     $this->createFile($filename, $data);
 
     $filename = implode(DIRECTORY_SEPARATOR, [$folder, 'yaml.yml']);
+    $arr = ['name' => 'YAML', 'test_array' => ['data1' => 3, 'data2' => 4]];
     $data = Spyc::YAMLDump($arr);
     $this->createFile($filename, $data);
 
@@ -59,8 +60,40 @@ class ConfigTest extends TestCase {
    * @depends testLoad
    */
   public function testGetAppName(Config $service) {
-    $expected = 'Config';
+    $expected = 'App';
     $real = $service->get('app.name');
-    $this->assertEquals($real, $expected);
+    $this->assertEquals($expected, $real);
+
+    return $service;
+  }
+  /**
+   * @depends testGetAppName
+   */
+  public function testGetJsonName(Config $service) {
+    $expected = 'JSON';
+    $real = $service->get('json.name');
+    $this->assertEquals($expected, $real);
+
+    return $service;
+  }
+  /**
+   * @depends testGetJsonName
+   */
+  public function testGetYamlName(Config $service) {
+    $expected = 'YAML';
+    $real = $service->get('yaml.name');
+    $this->assertEquals($expected, $real);
+
+    return $service;
+  }
+  /**
+   * @depends testGetYamlName
+   */
+  public function testGetYamlLastName(Config $service) {
+    $expected = 'Config';
+    $real = $service->get('yaml.last_name');
+    $this->assertEquals($expected, $real);
+
+    return $service;
   }
 }
