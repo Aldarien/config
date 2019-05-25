@@ -34,7 +34,11 @@ class Config {
         continue;
       }
       $loader = new $loader($folder . DIRECTORY_SEPARATOR . $file->getFilename());
-      $this->data->{$loader->getName()} = $loader->load();
+      if (!isset($this->data->{$loader->getName()})) {
+        $this->data->{$loader->getName()} = $loader->load();
+        continue;
+      }
+      $this->data->{$loader->getName()} = (object) array_merge((array) $this->data->{$loader->getName()}, (array) $loader->load());
     }
   }
   /*
