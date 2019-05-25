@@ -52,5 +52,15 @@ class ConfigTest extends TestCase {
     $folder = implode(DIRECTORY_SEPARATOR, [dirname(__DIR__), 'config']);
     $service = new Config($folder);
     $this->assertTrue(true);
+    !d($service);
+    return $service;
+  }
+  /**
+   * @depends testLoad
+   */
+  public function testGetAppName(Config $service) {
+    $expected = 'Config';
+    $real = $service->get('app.name');
+    $this->assertEquals($real, $expected);
   }
 }
