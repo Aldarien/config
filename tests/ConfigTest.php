@@ -96,4 +96,21 @@ class ConfigTest extends TestCase {
 
     return $service;
   }
+  /**
+   * @depends testGetYamlLastName
+   */
+  public function testGetTestArray(Config $service) {
+    $expected = (object) ['data1' => 1, 'data2' => 2];
+    $real = $service->get('app.test_array');
+    $this->assertEquals($expected, $real);
+
+    $real = $service->get('json.test_array');
+    $this->assertEquals($expected, $real);
+
+    $expected = (object) ['data1' => 3, 'data2' => 4];
+    $real = $service->get('yaml.test_array');
+    $this->assertEquals($expected, $real);
+
+    return $service;
+  }
 }
