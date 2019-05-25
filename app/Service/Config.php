@@ -56,7 +56,7 @@ class Config {
     }
     $this->data->configuration = (object) $configuration;
   }*/
-  public function get($name, $current = null, $full = '') {
+  public function get($name, $default = null, $current = null, $full = '') {
     if ($current == null) {
       $current = $this->data;
       $full = $name;
@@ -70,10 +70,10 @@ class Config {
       if (!isset($current->$f)) {
         throw new \InvalidArgumentException($f . ' not found.');
       }
-      return $this->get(implode('.', $name), $current->$f, $full);
+      return $this->get(implode('.', $name), $default, $current->$f, $full);
     }
     if (!isset($current->{$name[0]})) {
-      return null;
+      return $default;
     }
     $output = $current->{$name[0]};
     $clean = $this->clean($output);
