@@ -21,7 +21,7 @@ class ConfigTest extends TestCase {
     $this->createFile($filename, $data);
 
     $filename = implode(DIRECTORY_SEPARATOR, [$folder, 'yaml.yml']);
-    $data = Spyc::YAMLDump($data);
+    $data = Spyc::YAMLDump($arr);
     $this->createFile($filename, $data);
 
     $filename = implode(DIRECTORY_SEPARATOR, [$folder, 'yaml.json']);
