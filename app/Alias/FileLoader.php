@@ -13,7 +13,7 @@ abstract class FileLoader implements FileLoaderInterface {
     $this->name = $info->getBasename($info->getExtension());
   }
 
-  public function getName() {
+  public function getName(): string {
     return $this->name;
   }
   protected function arrayToObject(&$array) {
