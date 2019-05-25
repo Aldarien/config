@@ -10,7 +10,7 @@ abstract class FileLoader implements FileLoaderInterface {
   public function __construct(string $filename) {
     $this->filename = $filename;
     $info = new \SplFileInfo($this->filename);
-    $this->name = $info->getBasename($info->getExtension());
+    $this->name = $info->getBasename('.' . $info->getExtension());
   }
 
   public function getName(): string {
